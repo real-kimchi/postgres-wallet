@@ -1,0 +1,26 @@
+services:
+  pgserver:
+    image: postgres
+    volumes:
+      - ./:/opt/app
+      - ./db-init/:/docker-entrypoint-initdb.d/
+    working_dir: /opt/app
+    environment:
+      - POSTGRES_PASSWORD=secret
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    command: "postgres"
+  pgclient:
+    image: postgres
+    depends_on:
+      - pgserver
+    volumes:
+      - ./:/opt/app
+    working_dir: /opt/app
+    environment:
+      - POSTGRES_PASSWORD=secret
+    command: "psql -h pgserver -U postgres"
+
